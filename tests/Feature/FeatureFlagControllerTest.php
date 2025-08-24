@@ -89,3 +89,38 @@ it('handles disabled feature and null value', function () {
              ->where('value', null)
     );
 });
+
+it('responds to OPTIONS requests with CORS headers', function () {
+    $feature = 'test-flag';
+
+    // Generate a valid JWT for Authorization header
+    $now = time();
+    $ttl = (int) (config('beam.jwt_ttl', 500));
+    $claims = [
+        'iss' => config('app.url', 'http://localhost'),
+        'iat' => $now,
+        'exp' => $now + $ttl,
+        'sub' => 'beam-guest',
+    ];
+    $secret = (string) config('app.key');
+    if (str_starts_with($secret, 'base64:')) {
+        $decoded = base64_decode(substr($secret, 7), true);
+        if ($decoded !== false) {
+            $secret = $decoded;
+        }
+    }
+    $token = JWT::encode($claims, $secret, 'HS256');
+
+    // Set Origin header to test CORS behavior
+    $response = $this->withHeaders([
+        'Authorization' => 'Bearer ' . $token,
+        'Origin' => config('app.url', 'http://localhost'),
+    ])->options("/beam/feature-flag/{$feature}");
+
+    $response->assertStatus(204);
+    $response->assertHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    $response->assertHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    $response->assertHeader('Access-Control-Allow-Credentials', 'true');
+    $response->assertHeader('Vary', 'Origin');
+    $response->assertHeader('Access-Control-Allow-Origin', config('app.url', 'http://localhost'));
+});

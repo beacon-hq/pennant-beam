@@ -61,7 +61,7 @@ class EnsureBeamAuthenticated
     {
         try {
             $secret = $this->jwtSecret();
-            JWT::decode($jwt, new Key(is_string($secret) ? $secret : (string) $secret, 'HS256'));
+            JWT::decode($jwt, new Key($secret, 'HS256'));
 
             return true;
         } catch (\Throwable) {
@@ -128,7 +128,7 @@ class EnsureBeamAuthenticated
 
         if ($matchesExternal || $matchesAppUrl) {
             // If proxy indicates HTTPS but Origin is HTTP, reject to avoid mixed-mode issues
-            if ($forwardedProto && $originScheme && strcasecmp($forwardedProto, $originScheme) !== 0) {
+            if ($forwardedProto && $originScheme && strcasecmp($externalScheme, $originScheme) !== 0) {
                 return null;
             }
 

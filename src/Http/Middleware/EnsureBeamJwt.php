@@ -20,7 +20,7 @@ class EnsureBeamJwt
     {
         $cookieName = (string) config('pennant.beam.cookie_name', 'BEAM-TOKEN');
         $token = Cookie::get($cookieName);
-        $valid = is_string($token) && $token !== '' ? $this->isJwtValid($token) : false;
+        $valid = is_string($token) && $token !== '' && $this->isJwtValid($token);
         $shouldIssue = false;
 
         if (!$valid) {
@@ -62,7 +62,7 @@ class EnsureBeamJwt
         try {
             $secret = $this->jwtSecret();
             // Validate signature and time-based claims (exp, nbf, iat)
-            JWT::decode($jwt, new Key(is_string($secret) ? $secret : (string) $secret, 'HS256'));
+            JWT::decode($jwt, new Key($secret, 'HS256'));
 
             return true;
         } catch (\Throwable) {

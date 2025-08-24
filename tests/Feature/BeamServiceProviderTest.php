@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Beacon\PennantBeam\Http\Controllers\FeatureFlagController;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Support\Facades\Route;
 
 it('registers the beam routes', function () {
@@ -22,4 +23,12 @@ it('registers the beam routes', function () {
     $actionName = $route->getActionName();
     expect($actionName)
         ->toContain(FeatureFlagController::class);
+});
+
+it('should not encrypt the beam cookie', function () {
+    $encryptCookies = resolve(EncryptCookies::class);
+
+    expect(prop($encryptCookies, 'except'))->toBe([
+        'BEAM-TOKEN',
+    ]);
 });

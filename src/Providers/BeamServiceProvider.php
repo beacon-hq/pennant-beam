@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Beacon\PennantBeam\Providers;
 
+use Beacon\PennantBeam\Console\Commands\BeamInstallCommand;
 use Beacon\PennantBeam\Http\Middleware\EnsureBeamAuthenticated;
 use Beacon\PennantBeam\Http\Middleware\EnsureBeamJwt;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -31,6 +32,12 @@ class BeamServiceProvider extends ServiceProvider
             $cookieName = (string) config('pennant.beam.cookie_name', 'BEAM-TOKEN');
             $middleware->disableFor($cookieName);
         });
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                BeamInstallCommand::class,
+            ]);
+        }
 
         $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
     }

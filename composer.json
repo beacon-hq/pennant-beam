@@ -4,7 +4,7 @@
     "type": "library",
     "require": {
         "beacon-hq/pennant-driver": "dev-main",
-        "firebase/php-jwt": "^6.11",
+        "firebase/php-jwt": "^6.11 || ^7.0",
         "illuminate/contracts": "^10|^11|^12",
         "laravel/pennant": "^1.14",
         "laravel/sanctum": "^4.2"
